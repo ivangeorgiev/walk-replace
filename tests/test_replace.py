@@ -1,7 +1,8 @@
 """pytest test cases for walk_replace package"""
 
-import os.path
+import os
 import shutil
+import contextlib
 import pytest
 from click.testing import CliRunner
 import walk_replace as r
@@ -27,6 +28,25 @@ def fixreplace_conf(fixdir):
     """Configuration file name for replace test."""
     conf_path = fixdir + '/replace.conf'
     return conf_path
+
+@contextlib.contextmanager
+def change_to_dir(new_dir):
+    """Context manager for temporarily switching to another directory."""
+    old_dir = os.path.abspath(os.curdir)
+    try:
+        os.chdir(new_dir)
+        yield new_dir
+    finally:
+        os.chdir(old_dir)
+
+
+def test_change_to_dir_context_manager(fixdir):
+    """Test change_to_dir context manger changes to dir and restores it after done."""
+
+    old_dir = os.path.abspath(os.curdir)
+    with change_to_dir(fixdir):
+        assert os.path.abspath(fixdir) == os.path.abspath(os.curdir)
+    assert old_dir == os.path.abspath(os.curdir)
 
 def test_import():
     """Smoke test"""
@@ -54,12 +74,11 @@ def test_walk_dir_walks_directory_and_yields_all_files(fixdir):
         'walk_dir/subdir_with_file/some_file.txt',
         'walk_dir/other_dir/other_file.txt'
         ]
-    expect = [os.path.abspath(f"{fixdir}/{item}") for item in expect]
     expect.sort()
 
-    actual = r.walk_dir(fixdir + '/walk_dir')
-    actual = [os.path.abspath(item) for item in actual]
-    actual.sort()
+    with change_to_dir(fixdir):
+        actual = list(r.walk_dir('walk_dir'))
+        actual.sort()
 
     assert expect == actual
 
@@ -70,12 +89,11 @@ def test_walk_dir_walks_directory_and_yields_include_regex_filter_files(fixdir):
         'walk_dir/subdir_with_file/some_file.txt',
         'walk_dir/other_dir/other_file.txt'
         ]
-    expect = [os.path.abspath(f"{fixdir}/{item}") for item in expect]
     expect.sort()
 
-    actual = r.walk_dir(fixdir + '/walk_dir', r'.*(some|other).*')
-    actual = [os.path.abspath(item) for item in actual]
-    actual.sort()
+    with change_to_dir(fixdir):
+        actual = list(r.walk_dir('walk_dir', r'.*(some|other).*'))
+        actual.sort()
 
     assert expect == actual
 
