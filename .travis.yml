@@ -12,3 +12,7 @@ install:
 script:
   - pytest tests -vv --cov walk_replace --cov-report html --cov-report term
   - pylint walk_replace
+
+addons:
+  artifacts: true
+  
