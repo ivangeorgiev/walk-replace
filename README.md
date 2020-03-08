@@ -1,4 +1,4 @@
-# walk-replace
+# walk-replace [![Build Status](https://travis-ci.com/ivangeorgiev/walk-replace.svg?branch=master)](https://travis-ci.com/ivangeorgiev/walk-replace)
 Replace in directories and sub-directories.
 
 
