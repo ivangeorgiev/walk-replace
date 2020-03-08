@@ -1,4 +1,14 @@
 language: python
-rvm:
- - 3.7
- - python
+python:
+ - "3.4"
+ - "3.5"
+ - "3.6"
+ - "3.7"
+ - "3.8"
+ - "nightly"
+install:
+  - pip install -r requirements.txt
+# command to run tests
+script:
+  - pytest tests -vv --cov walk_replace --cov-report html --cov-report term
+  - pylint walk_replace
