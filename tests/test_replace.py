@@ -134,7 +134,7 @@ def test_template_filter_raises_ValueError():
     filter_func = r.get_template_filter(dict(a=1))
     with pytest.raises(KeyError) as excinfo:
         filter_func('My number is $b')
-    print(excinfo.value)
+    #print(excinfo.value)
 
 #pylint: disable=redefined-outer-name
 def test_configparser_safe_dict():

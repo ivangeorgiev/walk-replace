@@ -4,7 +4,18 @@ import re
 import configparser
 
 
-def search_files(pattern, abspath=True, recursive=True):
+def search_files(pattern:str, abspath:bool=True, recursive:bool=True):
+    """Search files using match one or more match pattern.
+
+    Supported pattern separators: ",", ";", ":", "\n"
+    Separators can be mixed.
+
+    Example Patterns
+    ----------------
+    patterns1 = "*.txt;*.py"
+    patterns2 = "input/**/*"
+    """
+
     def filter_entry(entry):
         for filter in filter_list:
             entry = filter(entry)
@@ -25,11 +36,29 @@ def search_files(pattern, abspath=True, recursive=True):
     return set(result)
 
 
-def read_config(config_filepath,
-                env_vars=None,
-                env_vars_section='ENV',
-                env_vars_upper=True):
+def read_config(config_filepath:str,
+                env_vars:str=None,
+                env_vars_section:str='ENV',
+                env_vars_upper:bool=True):
+    """Read configuration file, passing given list of 
+    environment variables as settings from ENV section.
 
+    Params:
+    -------
+    config_filepath - Path to the config file
+
+    env_vars - List of environment variables to be passed.
+        Supported separators: ",", ":", ";"
+        If empty or None, no environment variables will be passed.
+
+    env_vars_section - Environment variables will be passed to 
+        this section.
+
+    env_vars_upper - If set to True, environment variable
+        names will be converted to upper case before accessed from the
+        environment.
+    """
+    
     def read_env_vars(env_vars):
         if isinstance(env_vars, str):
             env_vars = re.split(",|:|;", env_vars)
@@ -40,7 +69,7 @@ def read_config(config_filepath,
         config.read_dict({env_vars_section: env_dict})
 
     if not os.path.isfile(config_filepath):
-        raise FileNotFoundError(f"Config file not found: ${config_filepath}")
+        raise FileNotFoundError(f"Config file not found: {config_filepath}")
     config = configparser.ConfigParser(
                 interpolation=configparser.ExtendedInterpolation()
                 )
@@ -48,7 +77,8 @@ def read_config(config_filepath,
     config.read(config_filepath)
     return config
 
-def text_substitute(file_path, mapping):
+def text_substitute(file_path:str, mapping:dict):
+    """Perform in-place text substition for a file using given search-replace mapping."""
     with open(file_path, 'r') as file:
         content = file.read()
     for search, replace in mapping.items():
