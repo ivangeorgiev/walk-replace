@@ -1,8 +1,14 @@
 import os
 import glob
 import re
+import enum
+import string
 import configparser
 
+
+class SubstituteMethod(enum.Enum):
+    PLAINTEXT = 'plaintext'
+    TEMPLATE = 'template'
 
 def search_files(pattern:str, abspath:bool=True, recursive:bool=True):
     """Search files using match one or more match pattern.
@@ -77,11 +83,27 @@ def read_config(config_filepath:str,
     config.read(config_filepath)
     return config
 
-def text_substitute(file_path:str, mapping:dict):
+def _substitute_plaintext(content:str, mapping:dict):
+    """Substitute, using plaintext search and replace."""
+    for search, replace in mapping.items():
+        content = content.replace(search, replace)
+    return content
+
+def _substitute_template(content:str, mapping:dict):
+    """Substitute, using Python's Template."""
+    template = string.Template(content)
+    return template.substitute(mapping)
+
+def _get_substitute_handler(method:SubstituteMethod):
+    """Get callable substitute handler for given method."""
+    handler_function_name = "_substitute_" + method.name.lower()
+    substitute_handler = globals()[handler_function_name]
+    return lambda content, mapping: substitute_handler(content, mapping)
+
+def text_substitute(file_path:str, mapping:dict, method:SubstituteMethod=SubstituteMethod.PLAINTEXT):
     """Perform in-place text substition for a file using given search-replace mapping."""
     with open(file_path, 'r') as file:
         content = file.read()
-    for search, replace in mapping.items():
-        content = content.replace(search, replace)
+    result = _get_substitute_handler(method)(content, mapping)
     with open(file_path, 'w') as file:
-        file.write(content)
+        file.write(result)

@@ -15,11 +15,20 @@ def fixdir_config(fixdir_fileutil):
     return f"{fixdir_fileutil}/config"
 
 @pytest.fixture
-def substitute_file(tmpdir):
+def substitute_plaintext_file(tmpdir):
     filename = f"{tmpdir}/file.txt"
     with open(filename, 'w') as file:
         file.write("White bird in my garden.")
     return filename
+
+@pytest.fixture
+def substitute_template_file(tmpdir):
+    filename = f"{tmpdir}/file.txt"
+    with open(filename, 'w') as file:
+        file.write("White ${animal} in my garden.")
+    return filename
+
+
 
 def test_search_files_single_pattern(fixdir_search):
     expected = ["file-1.txt", "dir1/file-1-1.txt"]
@@ -37,6 +46,13 @@ def test_search_files_multiple_pattern(fixdir_search):
     actual = sorted(fileutil.search_files(search_pattern))
     assert actual == expected
 
+def test_search_files_ignores_dirs(fixdir_search):
+    expected = ["file-1.txt","dir1/file-1-1.txt"]
+    expected = sorted([os.path.abspath(f"{fixdir_search}/{entry}") for entry in expected])
+    search_pattern = (f"{fixdir_search}/**/*.txt\n" +
+                      f"{fixdir_search}/**/dir*")
+    actual = sorted(fileutil.search_files(search_pattern))
+    assert actual == expected
 
 def test_read_config(fixdir_config):
     os.environ['ENVIRONMENT_NAME'] = 'ask'
@@ -45,10 +61,23 @@ def test_read_config(fixdir_config):
     expected = { 'a':'Hello', 'b': 'ask' }
     assert expected == dict(config['settings'])
 
-def test_substitute_plaintext(substitute_file):
+def test_read_config_raises_filenotfound(tmpdir):
+    with pytest.raises(FileNotFoundError):
+        fileutil.read_config(tmpdir + "/notfound.conf")
+
+def test_substitute_plaintext(substitute_plaintext_file):
     expected = "White fox in my garden."
-    fileutil.text_substitute(substitute_file, {'bird':'fox'})
-    with open(substitute_file, 'r') as file:
+    fileutil.text_substitute(substitute_plaintext_file, {'bird':'fox'})
+    with open(substitute_plaintext_file, 'r') as file:
+        actual = file.read()
+    assert expected == actual
+
+def test_substitute_template(substitute_template_file):
+    expected = "White fox in my garden."
+    fileutil.text_substitute(substitute_template_file, 
+                             {'animal':'fox'}, 
+                             fileutil.SubstituteMethod.TEMPLATE)
+    with open(substitute_template_file, 'r') as file:
         actual = file.read()
     assert expected == actual
 
