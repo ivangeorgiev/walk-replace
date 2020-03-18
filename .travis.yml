@@ -13,7 +13,7 @@ install:
   - pip install -r requirements.txt
 # command to run tests
 script:
-  - pytest tests -vv --cov walk_replace --cov-report html --cov-report term
+  - pytest tests -vv --cov walk_replace --cov devopslib --cov-report html --cov-report term
  # - pylint walk_replace
 
 after_success:
