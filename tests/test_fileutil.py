@@ -81,3 +81,16 @@ def test_substitute_template(substitute_template_file):
         actual = file.read()
     assert expected == actual
 
+def test_pivot_mapping():
+    mapping = {
+               'search.name': 'name',
+               'replace.name': 'John',
+               'search.age': 'age',
+              }
+    expect = {
+              'name': 'John',
+              'age': '',
+             }
+
+    actual =  fileutil.pivot_mapping(mapping, 'search.', 'replace.')
+    assert expect == actual

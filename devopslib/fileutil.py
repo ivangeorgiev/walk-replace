@@ -107,3 +107,27 @@ def text_substitute(file_path:str, mapping:dict, method:SubstituteMethod=Substit
     result = _get_substitute_handler(method)(content, mapping)
     with open(file_path, 'w') as file:
         file.write(result)
+
+def pivot_mapping(mapping:dict, key_prefix:str='key.', value_prefix:str='value.'):
+    """Convert pivoted mapping into simple mapping.
+
+    Example:
+    >>> input_map = {
+    ...              'search.name': '<name>',
+    ...              'replace.name': 'John',
+    ...              'search.age': '<age>',
+    ...              }
+    >>> pivot_mapping(input_map, 'search.', 'replace.')
+    {'name': 'John', 'age': ''}
+    """
+    result = {}
+    for key, value in mapping.items():
+        if not key.startswith(key_prefix):
+            continue
+        key_name = key[len(key_prefix):]
+        result[key_name] = mapping.get(value_prefix + key_name, '')
+    return result
+
+if __name__ == '__main__': # pragma: no cover
+    import doctest
+    doctest.testmod()
