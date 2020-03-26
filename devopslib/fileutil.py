@@ -118,14 +118,14 @@ def pivot_mapping(mapping:dict, key_prefix:str='key.', value_prefix:str='value.'
     ...              'search.age': '<age>',
     ...              }
     >>> pivot_mapping(input_map, 'search.', 'replace.')
-    {'name': 'John', 'age': ''}
+    {'<name>': 'John', '<age>': ''}
     """
     result = {}
     for key, value in mapping.items():
         if not key.startswith(key_prefix):
             continue
         key_name = key[len(key_prefix):]
-        result[key_name] = mapping.get(value_prefix + key_name, '')
+        result[value] = mapping.get(value_prefix + key_name, '')
     return result
 
 if __name__ == '__main__': # pragma: no cover

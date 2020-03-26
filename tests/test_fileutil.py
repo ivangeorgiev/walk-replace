@@ -83,13 +83,13 @@ def test_substitute_template(substitute_template_file):
 
 def test_pivot_mapping():
     mapping = {
-               'search.name': 'name',
+               'search.name': '<name>',
                'replace.name': 'John',
-               'search.age': 'age',
+               'search.age': '<age>',
               }
     expect = {
-              'name': 'John',
-              'age': '',
+              '<name>': 'John',
+              '<age>': '',
              }
 
     actual =  fileutil.pivot_mapping(mapping, 'search.', 'replace.')
