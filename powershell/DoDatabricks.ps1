@@ -25,7 +25,7 @@ function Get-DoDatabricksHeaders {
 function Get-DoDatabricksCluster([string]$ClusterName) {
     $Headers = Get-DoDatabricksHeaders
 
-    $RequestUri = "$DatabricksURI/api/2.0/clusters/list"
+    $RequestUri = "${Global:DoDatabricksURI}/api/2.0/clusters/list"
     $RequestUri = [uri]::EscapeUriString($RequestUri)
 
     $Response = (Invoke-RestMethod -Uri "$RequestUri" -Method 'GET' -Headers $Headers).clusters
@@ -73,7 +73,7 @@ function Ensure-DoDatabricksCluster {
     $Headers = Get-DoDatabricksHeaders
 
     $Body = $ClusterSettings | ConvertTo-Json -Depth 10
-    $RequestUri = "$DatabricksURI/api/2.0/clusters/create"
+    $RequestUri = "${Global:DoDatabricksURI}/api/2.0/clusters/create"
     $RequestUri = [uri]::EscapeUriString($RequestUri)
     $Response = Invoke-RestMethod -Uri "$RequestUri" -Method 'POST' -Headers $Headers -Body $Body
 
