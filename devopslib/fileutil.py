@@ -68,9 +68,12 @@ def read_config(config_filepath:str,
     def read_env_vars(env_vars):
         if isinstance(env_vars, str):
             env_vars = re.split(",|:|;", env_vars)
-        env_vars = [var.strip() for var in env_vars]
-        if env_vars_upper:
-            env_vars = [var.upper() for var in env_vars]
+        if '*' in env_vars:
+            env_vars = os.environ.keys()
+        else:
+            env_vars = [var.strip() for var in env_vars]
+            if env_vars_upper:
+                env_vars = [var.upper() for var in env_vars]
         env_dict = {var_name.replace('$', '$$'): os.environ[var_name].replace('$', '$$')   for var_name in env_vars }
         config.read_dict({env_vars_section: env_dict})
 

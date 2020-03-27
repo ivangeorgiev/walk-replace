@@ -61,6 +61,16 @@ def test_read_config(fixdir_config):
     expected = { 'a':'Hello', 'b': 'ask' }
     assert expected == dict(config['settings'])
 
+
+def test_read_config_all_env_vars(fixdir_config):
+    os.environ['SOMETHING_HERE'] = 'ask'
+    os.environ['ENVIRONMENT_NAME'] = 'ask'
+    config_filename = f'{fixdir_config}/some.config'
+    config = fileutil.read_config(config_filename, env_vars='something_here,*')
+    expected = { 'a':'Hello', 'b': 'ask' }
+    assert expected == dict(config['settings'])
+
+
 def test_read_config_raises_filenotfound(tmpdir):
     with pytest.raises(FileNotFoundError):
         fileutil.read_config(tmpdir + "/notfound.conf")
